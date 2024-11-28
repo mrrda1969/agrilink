@@ -8,9 +8,13 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  bool _isDarkMode = false;
+  String _selectedLanguage = 'English';
+  final List<String> _languages = ['English', 'Spanish', 'French'];
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold (
+    return Scaffold(
       appBar: AppBar(
         title: const Text(
           "Settings",
@@ -20,30 +24,45 @@ class _SettingPageState extends State<SettingPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        // centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 210, 230, 215),
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10))),
       ),
       backgroundColor: const Color.fromARGB(255, 210, 230, 215),
-      body: ListView(children: const [
-        //profile image
-        Padding(
-          padding: EdgeInsets.all(20.0),
-          child: CircleAvatar(
-            radius: 70,
-            backgroundColor: Color.fromARGB(255, 210, 230, 215),
-            child: Icon(
-              Icons.settings,
-              color: Colors.black,
-              size: 100,
-            ),
+      body: ListView(
+        padding: const EdgeInsets.all(20.0),
+        children: [
+          // Dark Mode Toggle
+          SwitchListTile(
+            title: const Text('Dark Mode'),
+            value: _isDarkMode,
+            onChanged: (bool value) {
+              setState(() {
+                _isDarkMode = value;
+              });
+            },
           ),
-        ),
-        
-      ]),
+          const SizedBox(height: 20),
+
+          // Language Selection
+          const Text(
+            'Select Language',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          DropdownButton<String>(
+            value: _selectedLanguage,
+            items: _languages.map((String language) {
+              return DropdownMenuItem<String>(
+                value: language,
+                child: Text(language),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedLanguage = newValue!;
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 }

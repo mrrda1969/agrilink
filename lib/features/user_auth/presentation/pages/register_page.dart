@@ -4,6 +4,7 @@ import 'package:agrilink/features/user_auth/presentation/widgets/my_textfield.da
 import 'package:agrilink/features/user_auth/presentation/widgets/square_tile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:agrilink/features/user_auth/presentation/pages/complete_profile_page.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -43,13 +44,22 @@ class _RegisterPageState extends State<RegisterPage> {
         });
 
         Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => CompleteProfilePage()),
+        );
       } else {
         Navigator.pop(context);
         showErrorMessage('Passwords do not match!');
       }
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      showErrorMessage(e.message ?? 'An error occurred');
+      showErrorMessage(e.code == 'email-already-in-use'
+          ? 'This email is already in use.'
+          : e.message ?? 'An error occurred');
+    } catch (e) {
+      Navigator.pop(context);
+      showErrorMessage('An unexpected error occurred. Please try again.');
     }
   }
 

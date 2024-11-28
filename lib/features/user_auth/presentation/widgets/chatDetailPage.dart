@@ -1,37 +1,41 @@
-import 'package:agrilink/features/user_auth/presentation/models/chatMessageModel.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatDetailPage extends StatefulWidget {
   const ChatDetailPage({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ChatDetailPageState createState() => _ChatDetailPageState();
 }
 
-List<ChatMessage> messages = [
-  ChatMessage(messageContent: "Hello, Will", messageType: "receiver"),
-  ChatMessage(messageContent: "How have you been?", messageType: "receiver"),
-  ChatMessage(
-      messageContent: "Hey Kriss, I am doing fine dude. wbu?",
-      messageType: "sender"),
-  ChatMessage(messageContent: "ehhhh, doing OK.", messageType: "receiver"),
-  ChatMessage(
-      messageContent: "Is there any thing wrong?", messageType: "sender"),
-];
-
 class _ChatDetailPageState extends State<ChatDetailPage> {
+  final TextEditingController _messageController = TextEditingController();
+  final CollectionReference _messagesRef =
+      FirebaseFirestore.instance.collection('messages');
+
+  Future<void> _sendMessage(String message) async {
+    if (message.trim().isEmpty) return;
+
+    await _messagesRef.add({
+      'messageContent': message,
+      'messageType': 'sender', // Adjust this based on sender/receiver logic
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    _messageController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 210, 230, 215),
       appBar: AppBar(
         shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                // topLeft: Radius.circular(5),
-                // topRight: Radius.circular(5),
-                bottomRight: Radius.circular(10))),
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(10),
+            bottomRight: Radius.circular(10),
+          ),
+        ),
         elevation: 0,
         automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 141, 201, 170),
@@ -49,16 +53,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     color: Colors.black,
                   ),
                 ),
-                const SizedBox(
-                  width: 2,
-                ),
+                const SizedBox(width: 2),
                 const CircleAvatar(
                   backgroundImage: AssetImage("assets/images/profile.png"),
                   maxRadius: 20,
                 ),
-                const SizedBox(
-                  width: 12,
-                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,15 +67,17 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       const Text(
                         "Kriss Benwat",
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      const SizedBox(
-                        height: 6,
-                      ),
+                      const SizedBox(height: 6),
                       Text(
                         "Online",
                         style: TextStyle(
-                            color: Colors.grey.shade600, fontSize: 13),
+                          color: Colors.grey.shade600,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -91,36 +93,55 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       ),
       body: Stack(
         children: <Widget>[
-          ListView.builder(
-            itemCount: messages.length,
-            shrinkWrap: true,
-            padding: const EdgeInsets.only(top: 10, bottom: 10),
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              return Container(
-                padding: const EdgeInsets.only(
-                    left: 14, right: 14, top: 10, bottom: 10),
-                child: Align(
-                  alignment: (messages[index].messageType == "receiver"
-                      ? Alignment.topLeft
-                      : Alignment.topRight),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: (messages[index].messageType == "receiver"
-                          ? Colors.grey.shade200
-                          : Colors.blue[200]),
+          // Fetching messages dynamically
+          StreamBuilder<QuerySnapshot>(
+            stream: _messagesRef.orderBy('timestamp').snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text("No messages yet."));
+              }
+
+              final messages = snapshot.data!.docs;
+
+              return ListView.builder(
+                itemCount: messages.length,
+                shrinkWrap: true,
+                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                itemBuilder: (context, index) {
+                  final messageData =
+                      messages[index].data() as Map<String, dynamic>;
+
+                  return Container(
+                    padding: const EdgeInsets.only(
+                        left: 14, right: 14, top: 10, bottom: 10),
+                    child: Align(
+                      alignment: (messageData['messageType'] == 'receiver'
+                          ? Alignment.topLeft
+                          : Alignment.topRight),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: (messageData['messageType'] == 'receiver'
+                              ? Colors.grey.shade200
+                              : Colors.blue[200]),
+                        ),
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          messageData['messageContent'],
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                      ),
                     ),
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      messages[index].messageContent,
-                      style: const TextStyle(fontSize: 15),
-                    ),
-                  ),
-                ),
+                  );
+                },
               );
             },
           ),
+          // Input Field
           Align(
             alignment: Alignment.bottomLeft,
             child: Container(
@@ -146,22 +167,21 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  const Expanded(
+                  const SizedBox(width: 15),
+                  Expanded(
                     child: TextField(
-                      decoration: InputDecoration(
-                          hintText: "Write message...",
-                          hintStyle: TextStyle(color: Colors.black54),
-                          border: InputBorder.none),
+                      controller: _messageController,
+                      decoration: const InputDecoration(
+                        hintText: "Write message...",
+                        hintStyle: TextStyle(color: Colors.black54),
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 15,
-                  ),
+                  const SizedBox(width: 15),
                   FloatingActionButton(
-                    onPressed: () {},
+                    onPressed: () =>
+                        _sendMessage(_messageController.text.trim()),
                     backgroundColor: Colors.blue,
                     elevation: 0,
                     child: const Icon(

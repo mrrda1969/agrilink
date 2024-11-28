@@ -12,35 +12,35 @@ class NavigationMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(NavigationController());
-    return DefaultTabController(
-        length: controller.length,
-        child: Scaffold(
-          bottomNavigationBar: Obx(
-            () => NavigationBar(
-                height: 80,
-                elevation: 0,
-                selectedIndex: controller.selectedIndex.value,
-                onDestinationSelected: (index) {
-                  if (index >= 0 && index < controller.length) {
-                    controller.selectedIndex.value = index;
-                  }
-                },
-                destinations: const [
-                  NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-                  NavigationDestination(
-                      icon: Icon(Icons.agriculture), label: "Projects"),
-                  NavigationDestination(
-                      icon: Icon(Icons.message), label: "Chats"),
-                  NavigationDestination(
-                      icon: Icon(Icons.groups), label: "Farmers"),
-                  NavigationDestination(
-                      icon: Icon(Icons.monetization_on), label: "Investments"),
-                ]),
-          ),
-          body: TabBarView(children: <Widget>[
-            Obx(() => controller.screens[controller.selectedIndex.value])
-          ]),
-        ));
+    return Scaffold(
+      bottomNavigationBar: Obx(
+        () => NavigationBar(
+          height: 80,
+          elevation: 0,
+          selectedIndex: controller.selectedIndex.value,
+          onDestinationSelected: (index) {
+            if (index >= 0 && index < controller.length) {
+              controller.selectedIndex.value = index;
+            }
+          },
+          destinations: const [
+            NavigationDestination(icon: Icon(Icons.home), label: "Home"),
+            NavigationDestination(
+                icon: Icon(Icons.agriculture), label: "Projects"),
+            NavigationDestination(icon: Icon(Icons.message), label: "Chats"),
+            NavigationDestination(icon: Icon(Icons.groups), label: "Investors"),
+            NavigationDestination(
+                icon: Icon(Icons.monetization_on), label: "Investments"),
+          ],
+        ),
+      ),
+      body: Obx(
+        () => IndexedStack(
+          index: controller.selectedIndex.value,
+          children: controller.screens,
+        ),
+      ),
+    );
   }
 }
 

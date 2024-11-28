@@ -1,3 +1,4 @@
+import 'package:agrilink/features/user_auth/presentation/pages/create_post_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/post_model.dart';
@@ -97,7 +98,10 @@ class PostsFeedPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/create-post');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreatePostPage()),
+          );
         },
         backgroundColor: const Color.fromARGB(255, 90, 147, 93),
         child: const Icon(Icons.add),

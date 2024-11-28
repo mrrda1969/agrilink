@@ -49,9 +49,12 @@ class _FamersPageState extends State<FarmersPage> {
       stream: FirebaseFirestore.instance.collection('Users').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return const Text('loading ....');
+          return const Text('Error loading users');
         }
-        //padding: const EdgeInsets.only(top: 16.0);
+        if (!snapshot.hasData) {
+          return const Center(
+              child: CircularProgressIndicator()); // Show loading indicator
+        }
 
         return ListView(
           children: snapshot.data!.docs
