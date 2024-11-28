@@ -1,9 +1,9 @@
-//import 'package:demo_app/features/user_auth/presentation/pages/chat_page.dart';
 import 'package:agrilink/features/user_auth/presentation/pages/farmers_page.dart';
 import 'package:agrilink/features/user_auth/presentation/pages/home.dart';
+import 'package:agrilink/features/user_auth/presentation/pages/investment_management_page.dart';
 import 'package:agrilink/features/user_auth/presentation/pages/investors_page.dart';
+import 'package:agrilink/features/user_auth/presentation/pages/posts_feed_page.dart';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
 import 'package:get/get.dart';
 
 class NavigationMenu extends StatelessWidget {
@@ -28,11 +28,13 @@ class NavigationMenu extends StatelessWidget {
                 destinations: const [
                   NavigationDestination(icon: Icon(Icons.home), label: "Home"),
                   NavigationDestination(
+                      icon: Icon(Icons.agriculture), label: "Projects"),
+                  NavigationDestination(
                       icon: Icon(Icons.message), label: "Chats"),
                   NavigationDestination(
-                      icon: Icon(Icons.groups), label: "Farmer"),
+                      icon: Icon(Icons.groups), label: "Farmers"),
                   NavigationDestination(
-                      icon: Icon(Icons.monetization_on), label: "Investors"),
+                      icon: Icon(Icons.monetization_on), label: "Investments"),
                 ]),
           ),
           body: TabBarView(children: <Widget>[
@@ -47,8 +49,10 @@ class NavigationController extends GetxController {
 
   final screens = [
     const HomePage(),
+    const PostsFeedPage(),
     const FarmersPage(),
     const InvestorsPage(),
+    const InvestmentManagementPage(),
   ];
 
   int get length => screens.length;
