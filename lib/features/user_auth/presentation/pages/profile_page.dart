@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:agrilink/features/user_auth/presentation/pages/chat_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -11,49 +10,101 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  User? currentUser = FirebaseAuth.instance.currentUser;
+  final User? currentUser = FirebaseAuth.instance.currentUser;
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  Map<String, dynamic>? userData;
+  bool isEditing = false;
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController bioController = TextEditingController();
+  String selectedRole = 'Investor';
+  final List<String> roles = ['Investor', 'Farmer'];
 
   @override
   void initState() {
     super.initState();
-    // Load current user data into the controllers
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
     if (currentUser != null) {
-      _loadUserData(); // Fetch actual user data from Firestore
+      final doc = await _fireStore.collection('Users').doc(currentUser!.uid).get();
+      if (doc.exists) {
+        setState(() {
+          userData = doc.data();
+          usernameController.text = userData?['username'] ?? '';
+          phoneController.text = userData?['phone'] ?? '';
+          bioController.text = userData?['bio'] ?? '';
+          selectedRole = userData?['role'] ?? 'Investor';
+        });
+      }
     }
   }
 
-  void _loadUserData() async {
-    DocumentSnapshot userDoc =
-        await _fireStore.collection('Users').doc(currentUser!.uid).get();
-    if (userDoc.exists) {
-      usernameController.text =
-          userDoc['username'] ?? ''; // Fetch actual username
-      phoneController.text =
-          userDoc['phone'] ?? ''; // Fetch actual phone number
-      bioController.text = userDoc['bio'] ?? ''; // Fetch actual bio
-    }
-  }
-
-  void saveProfile() async {
+  Future<void> _saveProfile() async {
     if (currentUser != null) {
       await _fireStore.collection('Users').doc(currentUser!.uid).update({
         'username': usernameController.text,
         'phone': phoneController.text,
         'bio': bioController.text,
+        'role': selectedRole,
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
-      );
+      setState(() {
+        isEditing = false;
+      });
+      _loadUserData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!')),
+        );
+      }
     }
+  }
+
+  Widget _buildInfoField(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 16),
+          ),
+          const Divider(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditableField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (userData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -65,71 +116,67 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         backgroundColor: const Color.fromARGB(255, 210, 230, 215),
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10))),
+        actions: [
+          if (!isEditing)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () => setState(() => isEditing = true),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: _saveProfile,
+            ),
+        ],
       ),
       backgroundColor: const Color.fromARGB(255, 210, 230, 215),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: ListView(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CircleAvatar(
-              radius: 70,
-              backgroundColor: Color.fromARGB(255, 210, 230, 215),
-              child: Icon(
-                Icons.person,
-                color: Colors.black,
-                size: 100,
+            Center(
+              child: CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.grey[300],
+                child: const Icon(Icons.person, size: 50),
               ),
             ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: bioController,
-              decoration: const InputDecoration(
-                labelText: 'Bio',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: saveProfile,
-              child: const Text('Save Changes'),
-            ),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatPage(
-                      receiverUserEmail: currentUser!.email!,
-                    ),
+            const SizedBox(height: 24),
+            if (isEditing) ...[
+              _buildEditableField('Username', usernameController),
+              _buildEditableField('Phone', phoneController),
+              _buildEditableField('Bio', bioController),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: DropdownButtonFormField<String>(
+                  value: selectedRole,
+                  decoration: const InputDecoration(
+                    labelText: 'Role',
+                    border: OutlineInputBorder(),
                   ),
-                );
-              },
-              child: const Text(
-                'Chat Now',
-                style: TextStyle(color: Color.fromARGB(255, 76, 0, 255)),
+                  items: roles.map((String role) {
+                    return DropdownMenuItem(
+                      value: role,
+                      child: Text(role),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        selectedRole = newValue;
+                      });
+                    }
+                  },
+                ),
               ),
-            ),
+            ] else ...[
+              _buildInfoField('Username', userData?['username'] ?? 'Not specified'),
+              _buildInfoField('Email', currentUser?.email ?? 'Not specified'),
+              _buildInfoField('Phone', userData?['phone'] ?? 'Not specified'),
+              _buildInfoField('Bio', userData?['bio'] ?? 'Not specified'),
+              _buildInfoField('Role', userData?['role'] ?? 'Not specified'),
+            ],
           ],
         ),
       ),

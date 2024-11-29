@@ -5,12 +5,64 @@ import '../models/post_model.dart';
 import '../models/investment_model.dart';
 import '../pages/chat_page.dart';
 
-class PostDetailPage extends StatelessWidget {
+class PostDetailPage extends StatefulWidget {
   final Post post;
 
   const PostDetailPage({super.key, required this.post});
 
+  @override
+  State<PostDetailPage> createState() => _PostDetailPageState();
+}
+
+class _PostDetailPageState extends State<PostDetailPage> {
+  String? userRole;
+  String? farmerUsername;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserRole();
+    _loadFarmerUsername();
+  }
+
+  Future<void> _loadUserRole() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userData = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user.uid)
+          .get();
+      if (mounted) {
+        setState(() {
+          userRole = userData.data()?['role'];
+        });
+      }
+    }
+  }
+
+  Future<void> _loadFarmerUsername() async {
+    final farmerData = await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(widget.post.userId)
+        .get();
+    if (mounted) {
+      setState(() {
+        farmerUsername = farmerData.data()?['username'];
+      });
+    }
+  }
+
   Future<void> _showInvestmentDialog(BuildContext context) async {
+    if (userRole != 'Investor') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Only investors can make investments'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final amountController = TextEditingController();
     final notesController = TextEditingController();
 
@@ -52,22 +104,44 @@ class PostDetailPage extends StatelessWidget {
               final currentUser = FirebaseAuth.instance.currentUser;
               if (currentUser == null) return;
 
+              final amount = double.parse(amountController.text);
+
+              // Create investment
               final investment = Investment(
                 id: '',
                 investorId: currentUser.uid,
-                farmerId: post.userId,
-                postId: post.id,
-                amount: double.parse(amountController.text),
+                farmerId: widget.post.userId,
+                postId: widget.post.id,
+                amount: amount,
                 status: 'pending',
                 createdAt: DateTime.now(),
                 notes: notesController.text,
               );
 
-              await FirebaseFirestore.instance
-                  .collection('investments')
-                  .add(investment.toMap());
+              // Start a transaction
+              await FirebaseFirestore.instance.runTransaction((transaction) async {
+                // Get the post document
+                final postDoc = await transaction.get(FirebaseFirestore.instance
+                    .collection('posts')
+                    .doc(widget.post.id));
 
-              if (context.mounted) {
+                if (!postDoc.exists) {
+                  throw Exception('Post does not exist!');
+                }
+
+                // Update the current funding
+                final currentFunding = postDoc.data()?['currentFunding'] ?? 0.0;
+                transaction.update(postDoc.reference, {
+                  'currentFunding': currentFunding + amount,
+                });
+
+                // Add the investment
+                await FirebaseFirestore.instance
+                    .collection('investments')
+                    .add(investment.toMap());
+              });
+
+              if (mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -87,7 +161,7 @@ class PostDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(post.title),
+        title: Text(widget.post.title),
         backgroundColor: const Color.fromARGB(255, 141, 201, 170),
       ),
       body: SingleChildScrollView(
@@ -102,7 +176,7 @@ class PostDetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      post.title,
+                      widget.post.title,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -110,7 +184,7 @@ class PostDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      post.description,
+                      widget.post.description,
                       style: const TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 16),
@@ -118,14 +192,14 @@ class PostDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Category: ${post.category}',
+                          'Category: ${widget.post.category}',
                           style: const TextStyle(
                             color: Colors.grey,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          'Location: ${post.location}',
+                          'Location: ${widget.post.location}',
                           style: const TextStyle(
                             color: Colors.grey,
                             fontWeight: FontWeight.bold,
@@ -135,7 +209,7 @@ class PostDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     LinearProgressIndicator(
-                      value: post.currentFunding / post.fundingGoal,
+                      value: widget.post.currentFunding / widget.post.fundingGoal,
                       backgroundColor: Colors.grey[300],
                       valueColor: const AlwaysStoppedAnimation<Color>(
                         Color.fromARGB(255, 90, 147, 93),
@@ -146,13 +220,13 @@ class PostDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Goal: \$${post.fundingGoal.toStringAsFixed(2)}',
+                          'Goal: \$${widget.post.fundingGoal.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          'Current: \$${post.currentFunding.toStringAsFixed(2)}',
+                          'Current: \$${widget.post.currentFunding.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
@@ -178,14 +252,16 @@ class PostDetailPage extends StatelessWidget {
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatPage(
-                          receiverUserEmail: post.userId,
+                    if (farmerUsername != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatPage(
+                            receiverUserEmail: farmerUsername!,
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   },
                   icon: const Icon(Icons.chat),
                   label: const Text('Contact Farmer'),
