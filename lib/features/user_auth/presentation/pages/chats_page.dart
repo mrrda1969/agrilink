@@ -10,7 +10,7 @@ class ChatsPage extends StatelessWidget {
         title: const Text('Chats'),
         centerTitle: true,
       ),
-      body: Center(
+      body: const Center(
         child: Text(
           'No chats available',
           style: TextStyle(fontSize: 20),

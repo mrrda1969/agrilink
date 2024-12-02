@@ -1,4 +1,4 @@
-import 'package:agrilink/features/user_auth/presentation/widgets/chatDetailPage.dart';
+import 'package:agrilink/features/user_auth/presentation/widgets/chat_detail_page.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
