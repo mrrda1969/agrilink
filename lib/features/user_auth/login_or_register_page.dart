@@ -1,5 +1,5 @@
-import 'package:agrilink/features/user_auth/presentation/pages/login_page.dart';
-import 'package:agrilink/features/user_auth/presentation/pages/register_page.dart';
+import 'package:agrilink/features/user_auth/presentation/pages/auth/login_page.dart';
+import 'package:agrilink/features/user_auth/presentation/pages/auth/register_page.dart';
 import 'package:flutter/material.dart';
 
 class LoginOrRegisterPage extends StatefulWidget {

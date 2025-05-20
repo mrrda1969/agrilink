@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/post_model.dart';
 import '../models/investment_model.dart';
-import '../pages/chat_page.dart';
+import 'chat/chat_page.dart';
 
 class PostDetailPage extends StatefulWidget {
   final Post post;
@@ -119,7 +119,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
               );
 
               // Start a transaction
-              await FirebaseFirestore.instance.runTransaction((transaction) async {
+              await FirebaseFirestore.instance
+                  .runTransaction((transaction) async {
                 // Get the post document
                 final postDoc = await transaction.get(FirebaseFirestore.instance
                     .collection('posts')
@@ -209,7 +210,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     ),
                     const SizedBox(height: 16),
                     LinearProgressIndicator(
-                      value: widget.post.currentFunding / widget.post.fundingGoal,
+                      value:
+                          widget.post.currentFunding / widget.post.fundingGoal,
                       backgroundColor: Colors.grey[300],
                       valueColor: const AlwaysStoppedAnimation<Color>(
                         Color.fromARGB(255, 90, 147, 93),

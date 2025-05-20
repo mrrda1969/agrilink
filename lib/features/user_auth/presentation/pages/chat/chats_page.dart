@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:agrilink/features/user_auth/presentation/pages/chat_page.dart';
+import 'package:agrilink/features/user_auth/presentation/pages/chat/chat_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

@@ -1,7 +1,7 @@
-import 'package:agrilink/features/user_auth/presentation/pages/chats_page.dart';
+import 'package:agrilink/features/user_auth/presentation/pages/chat/chats_page.dart';
 import 'package:agrilink/features/user_auth/presentation/pages/home.dart';
-import 'package:agrilink/features/user_auth/presentation/pages/investment_management_page.dart';
-import 'package:agrilink/features/user_auth/presentation/pages/investors_page.dart';
+import 'package:agrilink/features/user_auth/presentation/pages/investment/investment_management_page.dart';
+import 'package:agrilink/features/user_auth/presentation/pages/investment/investors_page.dart';
 import 'package:agrilink/features/user_auth/presentation/pages/posts_feed_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

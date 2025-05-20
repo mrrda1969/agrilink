@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../pages/chat_page.dart';
+import '../chat/chat_page.dart';
 
 class InvestorsPage extends StatefulWidget {
   const InvestorsPage({super.key});
