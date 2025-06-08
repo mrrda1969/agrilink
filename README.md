@@ -1,16 +1,10 @@
 # agrilink
 
-A new Flutter project.
+An app for connecting farmers to investors with the aim to make funds available to farmers in need and opportunites to investors. The aim is to unleash the potiential of tech in boosting agricultural activity
 
-## Getting Started
+## Tech stack
+Flutter - UI
+Firebase - backend and analytics
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Contributing to this project
+Feel free to create pull requests and contribute to this project
