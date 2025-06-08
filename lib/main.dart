@@ -1,6 +1,6 @@
-import 'package:agrilink/core/theme/app_theme.dart';
-import 'package:agrilink/core/theme/theme_provider.dart';
-import 'package:agrilink/features/app/splash_screen/splash.dart';
+import 'package:agrilink/config/app_theme.dart';
+import 'package:agrilink/core/providers/theme_provider.dart';
+import 'package:agrilink/ui/widgets/splash/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
