@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../models/post_model.dart';
+import '../../../models/post.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -52,7 +52,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         status: 'open',
       );
 
-      await FirebaseFirestore.instance.collection('posts').add(post.toMap());
+      await FirebaseFirestore.instance.collection('posts').add(post.toJson());
 
       if (mounted) {
         Navigator.pop(context);

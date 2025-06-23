@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../models/investment_model.dart';
-import '../../../models/post_model.dart';
+import '../../../models/investment.dart';
+import '../../../models/post.dart';
 
 class InvestmentManagementPage extends StatelessWidget {
   const InvestmentManagementPage({super.key});
@@ -11,7 +11,7 @@ class InvestmentManagementPage extends StatelessWidget {
     final doc =
         await FirebaseFirestore.instance.collection('posts').doc(postId).get();
     if (doc.exists) {
-      return Post.fromMap(doc.data()!, doc.id);
+      return Post.fromJson(doc.data()!, doc.id);
     }
     return null;
   }
@@ -66,7 +66,7 @@ class InvestmentManagementPage extends StatelessWidget {
                 return ListView.builder(
                   itemCount: investments.length,
                   itemBuilder: (context, index) {
-                    final investment = Investment.fromMap(
+                    final investment = Investment.fromJson(
                       investments[index].data() as Map<String, dynamic>,
                       investments[index].id,
                     );
@@ -119,7 +119,7 @@ class InvestmentManagementPage extends StatelessWidget {
                 return ListView.builder(
                   itemCount: requests.length,
                   itemBuilder: (context, index) {
-                    final investment = Investment.fromMap(
+                    final investment = Investment.fromJson(
                       requests[index].data() as Map<String, dynamic>,
                       requests[index].id,
                     );

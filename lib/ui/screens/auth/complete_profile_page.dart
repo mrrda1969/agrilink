@@ -93,7 +93,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             ),
             const SizedBox(height: 24),
             MyButton(
-              text: "Complete Profile",
+              label: "Complete Profile",
               onTap: completeProfile,
             ),
           ],

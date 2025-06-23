@@ -1,7 +1,7 @@
 import 'package:agrilink/ui/screens/post/create_post_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../models/post_model.dart';
+import '../../../models/post.dart';
 import 'post_detail_page.dart';
 
 class PostsFeedPage extends StatelessWidget {
@@ -38,7 +38,7 @@ class PostsFeedPage extends StatelessWidget {
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
               final doc = snapshot.data!.docs[index];
-              final post = Post.fromMap(
+              final post = Post.fromJson(
                 doc.data() as Map<String, dynamic>,
                 doc.id,
               );

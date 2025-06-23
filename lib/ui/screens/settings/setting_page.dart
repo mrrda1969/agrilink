@@ -1,21 +1,23 @@
+import 'package:agrilink/config/theme_provider.dart';
 import 'package:agrilink/core/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SettingPage extends StatefulWidget {
+class SettingPage extends ConsumerStatefulWidget {
   const SettingPage({super.key});
 
   @override
-  State<SettingPage> createState() => _SettingPageState();
+  ConsumerState<SettingPage> createState() => _SettingPageState();
 }
 
-class _SettingPageState extends State<SettingPage> {
+class _SettingPageState extends ConsumerState<SettingPage> {
   String _selectedLanguage = 'English';
   final List<String> _languages = ['English', 'Spanish', 'French'];
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeNotifier = ref.read(themeModeNotifierProvider.notifier);
+    final isDarkMode = ref.watch(isDarkModeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -33,9 +35,9 @@ class _SettingPageState extends State<SettingPage> {
         children: [
           SwitchListTile(
             title: const Text('Dark Mode'),
-            value: themeProvider.isDarkMode,
+            value: isDarkMode,
             onChanged: (bool value) {
-              themeProvider.toggleTheme();
+              themeNotifier.toggleTheme();
             },
           ),
           const SizedBox(height: 20),

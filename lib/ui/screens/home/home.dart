@@ -2,7 +2,7 @@ import 'package:agrilink/ui/widgets/nav/drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../../models/post_model.dart';
+import '../../../models/post.dart';
 import '../post/post_detail_page.dart';
 import '../profile/profile_page.dart';
 import '../settings/setting_page.dart';
@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> {
 
               final posts = snapshot.data!.docs
                   .map((doc) =>
-                      Post.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+                      Post.fromJson(doc.data() as Map<String, dynamic>, doc.id))
                   .where((post) => post.title
                       .toLowerCase()
                       .contains(searchQuery.toLowerCase()))

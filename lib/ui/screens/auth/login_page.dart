@@ -116,20 +116,18 @@ class _LoginPageState extends State<LoginPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      // sign in button
+                      MyButton(
+                        label: "Sign In",
+                        onTap: signUserIn,
+                      ),
+                      const Spacer(),
                       Text(
                         'Forgot Password?',
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                     ],
                   ),
-                ),
-
-                const SizedBox(height: 25),
-
-                // sign in button
-                MyButton(
-                  text: "Sign In",
-                  onTap: signUserIn,
                 ),
 
                 const SizedBox(height: 30),

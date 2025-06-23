@@ -1,37 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyButton extends StatelessWidget {
+class MyButton extends ConsumerWidget {
   final Function()? onTap;
-  final String text;
+  final String label;
 
   const MyButton({
     super.key,
     required this.onTap,
-    required this.text,
+    required this.label,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(25),
-        margin: const EdgeInsets.symmetric(horizontal: 25),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 90, 147, 93),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            text,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ElevatedButton(
+        onPressed: () {
+          onTap?.call();
+        },
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Text(
+            label,
             style: const TextStyle(
               color: Colors.white,
-              fontWeight: FontWeight.bold,
               fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-      ),
-    );
+        ]));
   }
 }

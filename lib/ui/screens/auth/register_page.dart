@@ -141,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 // sign in button
                 MyButton(
-                  text: "Sign Up",
+                  label: "Sign Up",
                   onTap: signUserUp,
                 ),
 

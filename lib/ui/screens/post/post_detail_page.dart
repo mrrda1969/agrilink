@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../models/post_model.dart';
-import '../../../models/investment_model.dart';
+import '../../../models/post.dart';
+import '../../../models/investment.dart';
 import '../chat/chat_page.dart';
 
 class PostDetailPage extends StatefulWidget {
@@ -139,7 +139,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 // Add the investment
                 await FirebaseFirestore.instance
                     .collection('investments')
-                    .add(investment.toMap());
+                    .add(investment.toJson());
               });
 
               if (mounted) {
