@@ -21,7 +21,7 @@ dependencies:
   freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
   get: ^4.6.6
-  google_sign_in: ^6.3.0
+  google_sign_in: ^7.1.0
   firebase_storage: ^12.4.5
   shared_preferences: ^2.5.3
   intl: ^0.20.2
@@ -31,7 +31,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
   build_runner: ^2.5.4
   riverpod_generator: ^2.6.5
   freezed: ^3.0.6
